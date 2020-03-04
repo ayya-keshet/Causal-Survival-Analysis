@@ -32,14 +32,15 @@ def create_survival_data(data_df, id_col, index_time_col, outcome_time_col,
     # Lets say followup_end_time=50, followup_max_time_from_index=30
     # person 1: started at t=0 , died at t=20. Should have E=1, T=20
     # person 2: started at t=10 , did not die but censored at t=30. Should have E=0, T=20
-    # person 3: started at t=0 , did not die and not censored. Should be cendored via followup_max_time_from_index. Should have E=0, T=30
-    # person 4: started at t=40 , did not die and not censored. Should be cendored via followup_end_time. Should have E=0, T=10
-    # person 5: started at t=0 , died at t=60. Should be cendored via followup_end_time. Should have E=0, T=50
+    # person 3: started at t=20 , did not die and not censored. Should be censored via followup_max_time_from_index. Should have E=0, T=30
+    # person 4: started at t=40 , did not die and not censored. Should be censored via followup_end_time. Should have E=0, T=10
+    # person 5: started at t=10 , died at t=70. Should be censored via followup_end_time. Should have E=0, T=50
+
 
     data_df = pd.DataFrame(data={'id': [1,2,3,4,5],
-                            'index_date': [0,10,20,40,0],
-                            'outcome_date':[20,np.nan,np.nan,np.nan, 60],
-                            'censoring_date':[np.nan,30,np.nan,np.nan,np.nan]})
+                                'index_date': [0,10,20,40,10],
+                                'outcome_date':[20,np.nan,np.nan,np.nan, 70],
+                                'censoring_date':[np.nan,30,np.nan,np.nan,np.nan]})
 
     survival_df = create_survival_data(data_df=data_df,
                                         id_col='id',
@@ -58,7 +59,7 @@ def create_survival_data(data_df, id_col, index_time_col, outcome_time_col,
     1	1	20
     2	0	20
     3	0	30
-    5	0	50
+    5	0	30
     
     """
     tmp_data_df = data_df.copy()
