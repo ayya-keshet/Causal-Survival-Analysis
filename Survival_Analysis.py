@@ -28,9 +28,9 @@ class Survival_Analysis:
     id_col: str, name of the id column in the outcome DataFrame
     index_time_col: str, name of the index time column in the data DataFrame
     TX_col: str, name of the treatment column in the data DataFrame
-    TX_labels: dictionary, contains the lables for the different treatment values. For example {0:'Vaginal', 1:'CS'}
+    TX_labels: dictionary, contains the lables for the different treatment values. For example {0:'Did not quit smoking', 1:'Quit smoking'}
     TX_colors: dictionary, contatins the colors for the different treatment values for plots. For example {0:'royalblue', 1:'darkorange'}
-    followup_end_time: int, the time at which adminiastrative censoring is applied. e.g. in Clalit 1/1/2018 = 18*DAYS_IN_YEAR
+    followup_end_time: int, the time at which adminiastrative censoring is applied. 
     followup_max_time_from_index: int, max time allowed from index. e.g. if we want until 10 years old we can put 10*DAYS_IN_YEAR
     months_bins: int, number of months to take as an interval to create person-time format data
     ps_df: DataFrame, contains the propensity scores, columns used to train the propensity score model and weights column
@@ -262,7 +262,9 @@ class Survival_Analysis:
         diff_median = np.median(survival_diffs)*100
         diff_low, diff_high = np.percentile(survival_diffs, q=[2.5, 97.5])*100
         difference_txt = '''Difference in survival probability at time {}: {:>0.3f}% ({:>0.3f}, {:>0.3f})
- Incident rate: Vagianl: {}, CS:{}'''.format(time_after_index, diff_median, diff_low, diff_high, self._incident_rate[0], self._incident_rate[1])
+ Incident rate: {}: {}, {}: {}'''.format(time_after_index, diff_median, diff_low, diff_high,
+                                             self._TX_labels[0], self._incident_rate[0], 
+                                             self._TX_labels[1], self._incident_rate[1])
         if self._output_dir is not None:
             print(difference_txt, file=open(os.path.join(self._output_dir, 'survival_diff_{}_{}_{}.txt'.format(self._method, self._n_bootstraps,
                                                                                                                self._outcome_name)),
