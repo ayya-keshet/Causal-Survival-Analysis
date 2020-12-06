@@ -81,7 +81,6 @@ def create_survival_data(data_df, id_col, index_time_col, outcome_time_col,
     # Seperate into 2 types of people:
     # (1) those who have an event before followup_max_time_from_index, followup_end_time_from_index and censoring_time_from_index
     idx_event = ( (survival_df[outcome_time_col].notna()) &  \
-                  (survival_df['event_time_from_index']<=followup_max_time_from_index) & \
                   (survival_df['event_time_from_index']<=survival_df['earliest_censoring_time_from_index']) )
     survival_df.loc[idx_event, 'E'] = 1
     survival_df.loc[idx_event, 'T'] = survival_df['event_time_from_index']
@@ -97,8 +96,8 @@ def create_survival_data(data_df, id_col, index_time_col, outcome_time_col,
     # sort by T
     survival_df.sort_values(['T'], inplace=True)
     
-
-    return survival_df[[id_col, 'E', 'T']]
+    return survival_df
+#     return survival_df[[id_col, 'E', 'T']]
 
 
 def get_bootstrap_dfs(pooled_df, id_col, survival_df=None, ids=None):

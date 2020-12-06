@@ -229,13 +229,11 @@ def get_survival_curves_from_standartization(model, survival_df, id_col, TX_col,
     res_df['hazard1'] = model.predict_proba(tmp_X)[:,1]
     res_df['one_minus_hazard1'] = 1- res_df['hazard1']
     res_df['survival_TX1'] = res_df.groupby([id_col])['one_minus_hazard1'].cumprod()
-    
-    
 
     surv_gform_0 = res_df.groupby(['k'])['survival_TX0'].mean()
     surv_gform_1 = res_df.groupby(['k'])['survival_TX1'].mean()
     
-    return surv_gform_0, surv_gform_1
+    return surv_gform_0, surv_gform_1, res_df['hazard0'], res_df['hazard1']
 
 def plot_survival_from_standardized_sklearn_lr(model, survival_df, TX_col, TX_labels_dict, id_col, event_col='E', 
                                                event_time_col='T', index_time_col='preg_start', 

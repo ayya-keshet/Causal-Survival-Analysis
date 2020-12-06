@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+from functools import reduce
 from lifelines import KaplanMeierFitter
 from lifelines.plotting import add_at_risk_counts
 
@@ -18,8 +19,7 @@ def get_kmf(survival_df, idx=None, label=None, weights=None):
 
 
 def plot_category_kmf(survival_df, cat_col, cat_list=None, labels=None,
-                      title='', xlabel='', ax=None, q=None, SZ=14, weights=None, xticks=None):
-    
+                      title='', xlabel='', ax=None, q=None, SZ=14, weights=None, xticks=None, return_data=False):
     if (q is not None):
         survival_df[cat_col + '_cat'] = pd.qcut(survival_df[cat_col], q, precision=1)
         cat_col = cat_col + '_cat'
@@ -37,12 +37,17 @@ def plot_category_kmf(survival_df, cat_col, cat_list=None, labels=None,
             fig, ax = plt.subplots(1,1,figsize=(8,5))
     
     kmfs = []
+    survival_plot_dfs = []
+    survival_ci_dfs = []
     for cat, label in categories:
         idx = (survival_df[cat_col] == cat)
-        label = '{} ({})'.format(label, len(survival_df[idx]))
+        #label = '{} (N={})'.format(label, len(survival_df[idx]))
         cat_kmf = get_kmf(survival_df, idx, label, weights)
         kmfs.append(cat_kmf)
         cat_kmf.plot(ax=ax)
+        if return_data:
+            survival_plot_dfs.append(cat_kmf.survival_function_)
+            survival_ci_dfs.append(cat_kmf.confidence_interval_survival_function_)
         
         ax.set_title(title, size=SZ+2)
         ax.set_xlabel(xlabel, size=SZ)
@@ -53,3 +58,9 @@ def plot_category_kmf(survival_df, cat_col, cat_list=None, labels=None,
     else:
         ax.set_xticks(xticks);
         add_at_risk_counts(*kmfs,ax=ax)
+    
+    if return_data:
+        survival_plot_df = reduce(lambda df1, df2: pd.merge(df1, df2, on='timeline'), survival_plot_dfs)
+        return survival_plot_df, survival_ci_dfs
+
+    return None, None

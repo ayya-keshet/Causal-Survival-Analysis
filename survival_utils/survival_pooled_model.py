@@ -64,5 +64,5 @@ def get_survival_curves_from_lr(model, TX_col, TX_labels_dict, followup_max_time
     model_surv_0 = survival_curve(A0_pred)
     model_surv_1 = survival_curve(A1_pred)
     
-    return model_surv_0, model_surv_1
+    return model_surv_0, model_surv_1, A0_pred, A1_pred
 

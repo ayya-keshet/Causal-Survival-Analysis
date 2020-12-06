@@ -9,7 +9,7 @@ from survival_pooled_model import get_survival_curves_from_lr, fit_pooled_lr
 from survival_preprocessing import prepare_pooled_lr_data, DAYS_IN_YEAR# , get_bootstrap_pooled_df
 
 
-def _prettify_survival_plot(ax, min_0, min_1, followup_max_time_from_index, TX_labels_dict, outcome_name, weights=None):
+def _prettify_survival_plot(ax, min_0, min_1, followup_max_time_from_index, TX_labels_dict, outcome_name, x_tick_multiplier=1, weights=None):
     """
     Adjust survival plots for labels and limits
     
@@ -18,12 +18,16 @@ def _prettify_survival_plot(ax, min_0, min_1, followup_max_time_from_index, TX_l
     XXX
     """
     min_val = min(min_0, min_1)
-    ax.set_ylim(min_val - 0.005, 1)
-    ax.text(0.85*followup_max_time_from_index, min_0 - 0.001, '{}'.format(TX_labels_dict[0]))
-    ax.text(0.85*followup_max_time_from_index, min_1 + 0.001, '{}'.format(TX_labels_dict[1]))
-    ax.set_xlabel('Months of follow-up', fontsize=14)
-    ax.set_ylabel('Survival probability', fontsize=14)
-    ax.set_title('{}\nPooled LR {}'.format(outcome_name, weights))
+    ax.set_ylim(min_val, 1)
+    ax.set_xlabel('Months of follow-up', fontsize=22)
+    ax.set_ylabel('Survival probability', fontsize=22)
+    ax.set_title('{}'.format(outcome_name), fontsize=24)
+    ax.legend(fontsize=18)
+    
+    #xticks = ax.get_xticks()
+    #ax.set_xticklabels([str(int(i)*x_tick_multiplier) for i in xticks])
+    ax.set_xticks([0, 20, 40, 60, 80, 100, 120])
+    ax.set_xticklabels([0, 20, 40, 60, 80, 100, 120])
         
 
 def plot_survival_from_lr(model, TX_col, TX_labels_dict, followup_max_time_from_index, outcome_name, weights=None, ax=None):
