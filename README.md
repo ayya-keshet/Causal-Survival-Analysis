@@ -3,7 +3,7 @@
 This repository contains a python class _Survival_Analysis_, which allows estimation of survival curves 
 following the frameworks described in the book: _Causal Inference: What If_, by Miguel Hernán and James Robins ([book site](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/)).
 
-The class allows the user to estimate and plot survival curves, using pooled logistic regression models, using the following methods: \
+The class allows the user to estimate and plot survival curves, using pooled logistic regression models with the following methods: \
 * Inverse-Probability-Weighting 
 * Overlap-Weights
 * Standardization
