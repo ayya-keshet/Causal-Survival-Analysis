@@ -21,3 +21,6 @@ Required Python packages:
 * tqdm
 * statsmodels
 * math
+
+### Authors
+Ayya Keseht and [Hagai Rossman](https://github.com/hrossman)
