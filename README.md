@@ -1,4 +1,4 @@
-## Python code for Survival Analysis
+## Python code for Causal Survival Analysis
 
 This repository contains a python class _Survival_Analysis_, which allows estimation of survival 
 following the frameworks described in the book _Causal Inference: What If_, by Miguel Hernán and James Robins ([book site](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/)).
@@ -23,4 +23,4 @@ Required Python packages:
 * math
 
 ### Authors
-Ayya Keseht and [Hagai Rossman](https://github.com/hrossman)
+Ayya Keshet and [Hagai Rossman](https://github.com/hrossman)
