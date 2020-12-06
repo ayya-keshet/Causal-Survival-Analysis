@@ -3,11 +3,9 @@ import pandas as pd
 
 from propensity_utils import calc_propensity, logit_ip_weights
 
-
-def prepare_nhfes_surv_data(data_path):
+def prepare_nhfes_survival_data(data_path):
     nhefs_all = pd.read_csv(data_path).reset_index().rename(columns={'index':'pid'})
     
-    ## Add interactions, dummies, propensity score and weights to the full data
     for col in ['age', 'wt71', 'smokeintensity', 'smokeyrs']:
         nhefs_all['{}_sqr'.format(col)] = nhefs_all[col] * nhefs_all[col]
 
@@ -36,4 +34,8 @@ def prepare_nhfes_surv_data(data_path):
     ip_weights = ip_numer / ip_denom
     nhefs_all['IPW'] = ip_weights
 
+    nhefs_all['OW'] = 0.0
+    nhefs_all.loc[nhefs_all.qsmk == 1, 'OW'] = 1 - nhefs_all.loc[nhefs_all.qsmk == 1, 'pscore']
+    nhefs_all.loc[nhefs_all.qsmk == 0, 'OW'] = nhefs_all.loc[nhefs_all.qsmk == 0, 'pscore']
+    
     return nhefs_all

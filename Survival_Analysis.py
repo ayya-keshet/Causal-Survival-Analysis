@@ -48,12 +48,8 @@ class Survival_Analysis:
         # Public 
         self.survival_curve0 = None
         self.survival_curve1 = None
-        self.hazard_curve0 = None
-        self.hazard_curve1 = None
         self.survival_df0 = pd.DataFrame()
         self.survival_df1 = pd.DataFrame()
-        self.hazard_df0 = pd.DataFrame()
-        self.hazard_df1 = pd.DataFrame()
         self.survival_data = pd.DataFrame()
         self.pooled_data = pd.DataFrame()
         
@@ -155,8 +151,6 @@ class Survival_Analysis:
         
         surv_curves_0_list = []
         surv_curves_1_list = []
-        hazard_curves_0_list = []
-        hazard_curves_1_list = []
         for i in tqdm(range(self._n_bootstraps)):
             boot_pooled_df, _ = get_bootstrap_dfs(pooled_df, self._id_col)
             self._odds_ratios.append(self._calc_odds_ratio_at_max_followup(boot_pooled_df))
@@ -165,18 +159,11 @@ class Survival_Analysis:
                                                                                                      self._followup_max_time_from_index_binned)
             surv_curves_0_list.append(model_surv_0)
             surv_curves_1_list.append(model_surv_1)
-            hazard_curves_0_list.append(model_hazard_0)
-            hazard_curves_1_list.append(model_hazard_1)
             
         self.survival_df0 = pd.DataFrame(surv_curves_0_list)
         self.survival_df1 = pd.DataFrame(surv_curves_1_list)
         self.survival_curve0 = self.survival_df0.quantile(0.5)
         self.survival_curve1 = self.survival_df1.quantile(0.5)
-        
-        self.hazard_df0 = pd.DataFrame(hazard_curves_0_list)
-        self.hazard_df1 = pd.DataFrame(hazard_curves_1_list)
-        self.hazard_curve0 = self.hazard_df0.quantile(0.5)
-        self.hazard_curve1 = self.hazard_df1.quantile(0.5)
         
     def _estimate_survival_std_bootstrap(self, model, preprocessor, process_cols):
         if preprocessor is not None:
@@ -184,8 +171,6 @@ class Survival_Analysis:
                                                           columns=process_cols)
         surv_curves_0_list = []
         surv_curves_1_list = []
-        hazard_curves_0_list = []
-        hazard_curves_1_list = []
         for i in tqdm(range(self._n_bootstraps)):
             boot_pooled_df, boot_survival_df = get_bootstrap_dfs(self.pooled_data, self._id_col, self.survival_data)
             self._odds_ratios.append(self._calc_odds_ratio_at_max_followup(boot_pooled_df))
@@ -196,8 +181,6 @@ class Survival_Analysis:
                                                      preprocessor, process_cols, self._ps_cols)
             surv_curves_0_list.append(model_surv_0)
             surv_curves_1_list.append(model_surv_1)
-            hazard_curves_0_list.append(model_hazard_0)
-            hazard_curves_1_list.append(model_hazard_1)
             
         self.survival_df0 = pd.DataFrame(surv_curves_0_list)
         self.survival_df0.reset_index(inplace=True, drop=True)
@@ -205,13 +188,6 @@ class Survival_Analysis:
         self.survival_df1.reset_index(inplace=True, drop=True)
         self.survival_curve0 = self.survival_df0.quantile(0.5)
         self.survival_curve1 = self.survival_df1.quantile(0.5)
-        
-        self.hazard_df0 = pd.DataFrame(hazard_curves_0_list)
-        self.hazard_df0.reset_index(inplace=True, drop=True)
-        self.hazard_df1 = pd.DataFrame(hazard_curves_1_list)
-        self.hazard_df1.reset_index(inplace=True, drop=True)
-        self.hazard_curve0 = self.hazard_df0.quantile(0.5)
-        self.hazard_curve1 = self.hazard_df1.quantile(0.5)
     
     def estimate_survival(self, method, model=None, preprocessor=None, process_cols=[]):
         if method not in ['LR', 'IPW', 'OW', 'STANDARDIZE']:
@@ -285,7 +261,7 @@ class Survival_Analysis:
             survival_diffs = self.survival_curve0[time_after_index] - self.survival_curve1[time_after_index]
         diff_median = np.median(survival_diffs)*100
         diff_low, diff_high = np.percentile(survival_diffs, q=[2.5, 97.5])*100
-        difference_txt = '''Difference in survival probability at time {}: {:>0.1f}% ({:>0.1f}, {:>0.1f})
+        difference_txt = '''Difference in survival probability at time {}: {:>0.3f}% ({:>0.3f}, {:>0.3f})
  Incident rate: Vagianl: {}, CS:{}'''.format(time_after_index, diff_median, diff_low, diff_high, self._incident_rate[0], self._incident_rate[1])
         if self._output_dir is not None:
             print(difference_txt, file=open(os.path.join(self._output_dir, 'survival_diff_{}_{}_{}.txt'.format(self._method, self._n_bootstraps,
@@ -293,22 +269,10 @@ class Survival_Analysis:
                                             'w'))
         print(difference_txt)      
         
-    def hazard_ratio(self, time_after_index):
-        if self._n_bootstraps is not None:
-            hazard_ratio = self.hazard_df1[time_after_index]/self.hazard_df0[time_after_index]
-        else:
-            hazard_ratio = self.hazard_curve1[time_after_index]/self.hazard_curve0[time_after_index]
-        ratio_median = np.median(hazard_ratio)
-        ratio_low, ratio_high = np.percentile(hazard_ratio, q=[2.5, 97.5])
-        ratio_txt = 'Hazard ratio at time {}: {:>0.1f} ({:>0.1f}, {:>0.1f})'.format(time_after_index, ratio_median, ratio_low, ratio_high)
-        if self._output_dir is not None:
-            print(ratio_txt, file=open(os.path.join(self._output_dir, 'hazard_ratio_{}_{}_{}.txt'.format(self._method, self._n_bootstraps, self._outcome_name)), 'w'))
-        print(ratio_txt)
-        
     def odds_ratio_at_max_follwup(self):
         odds_ratio_median = np.median(self._odds_ratios)
         odds_low, odds_high = np.percentile(self._odds_ratios, q=[2.5, 97.5])
-        odds_txt = 'Odds ratio at max followup: {:>0.1f} ({:>0.1f}, {:>0.1f})'.format(odds_ratio_median, odds_low, odds_high)
+        odds_txt = 'Odds ratio at max followup: {:>0.3f} ({:>0.3f}, {:>0.3f})'.format(odds_ratio_median, odds_low, odds_high)
         if self._output_dir is not None:
             print(odds_txt, file=open(os.path.join(self._output_dir, 'odds_ratio_{}_{}_{}.txt'.format(self._method, self._n_bootstraps, self._outcome_name)), 'w'))
         print(odds_txt)
