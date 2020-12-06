@@ -10,8 +10,7 @@ The class allows the user to estimate and plot survival curves, using pooled log
 
 ### Usage and data
 A usage exmaple can be found in the notebook _NFEHS example.ipynb_. \
-Code for this example can be downloaded [here](https://cdn1.sph.harvard.edu/wp-content/uploads/sites/1268/1268/20/nhefs.csv). \
-The _NFEHS_ example data is available for download [here](https://cdn1.sph.harvard.edu/wp-content/uploads/sites/1268/1268/20/nhefs.csv)
+The _NFEHS_ example data is available for download [here].(https://cdn1.sph.harvard.edu/wp-content/uploads/sites/1268/1268/20/nhefs.csv)
 Code in this notebook assumes the data in csv format is located under the _data_ folder.
 
 ![](example_survival_curves.png)
